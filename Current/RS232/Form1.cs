@@ -32,12 +32,16 @@ namespace RS232
                 cmbComSelect.Items.Add(port);
             }
         }
-        public const int MaxLengthMessage = 100;
-        public const int MinLengthMessage = 10;
-        public const int Newstartframefound = 0;
-        public const int Nostartfound = 1;
-        public const int Completeframefound = 2;
-        public const int Incompleteframefound = 4;
+        public const int MESSAGEMAXLENGTH = 100;
+        public const int MESSAGEMINLENGTH = 10;
+        public const int NEWSTARTFRAMEFOUND = 0;
+        public const int NOSTARTFRAMEFOUND = 1;
+        public const int COMPLETEFRAMEFOUND = 2;
+        public const int INCOMPLETEFRAMEFOUND = 4;
+        public const int MESSAGEGPRMC = 20;
+        public const int MESSAGEGPGGA = 21;
+        public const int MESSAGEGPGSA = 22;
+        
         
         Constants definedConstants = new Constants();
 
@@ -76,8 +80,8 @@ namespace RS232
 
 
 
-        char[] Rx_Buffer = new char[MaxLengthMessage];
-        char[] Rx_BufferBufferd = new char[MaxLengthMessage];
+        char[] Rx_Buffer = new char[MESSAGEMAXLENGTH];
+        char[] Rx_BufferBufferd = new char[MESSAGEMAXLENGTH];
         
         byte buffindex = 0;
         byte result = 10;
@@ -90,15 +94,15 @@ namespace RS232
             result = Parsingdata(buffindex);
             switch (result)
             {
-                case Newstartframefound:
+                case NEWSTARTFRAMEFOUND:
                     Rx_Buffer[0] = Rx_Buffer[buffindex];
                     buffindex = 0;
                     break;
-                case Nostartfound:
+                case NOSTARTFRAMEFOUND:
                     break;
-                case Incompleteframefound:
+                case INCOMPLETEFRAMEFOUND:
                     break;
-                case Completeframefound:
+                case COMPLETEFRAMEFOUND:
                     Array.Clear(Rx_Buffer, (buffindex + 1), (Rx_Buffer.Length - (buffindex+1)));
                     Array.Copy(Rx_Buffer, Rx_BufferBufferd, buffindex+1);
                     Array.Clear(Rx_BufferBufferd, (buffindex + 1), (Rx_BufferBufferd.Length - (buffindex + 1)));
@@ -106,17 +110,17 @@ namespace RS232
                     string s = new string(Rx_BufferBufferd);
                     SetText_decoded(s);
                     Newframefound();
-
                     break;
                 default:
                     break;
             }
             
-            if (buffindex + 1 < MaxLengthMessage) 
+            if (buffindex + 1 < MESSAGEMAXLENGTH) 
                 buffindex++;
             else 
                 buffindex = 0;
             SetText(Lastread.ToString());
+  
         }
 
         /// <summary>
@@ -129,43 +133,125 @@ namespace RS232
         {
             if (Rx_Buffer[buffindex] == (char)'$') 
             {
-                return Newstartframefound;
+                return NEWSTARTFRAMEFOUND;
             }
             else if (Rx_Buffer[0] != (char)'$')
             {
-                return Nostartfound; 
+                return NOSTARTFRAMEFOUND; 
             }
             // wel begin
             else if (Rx_Buffer[buffindex] == (char)'\n') /* next line windows: \r \n */
             {
-                return Completeframefound; // compleet frame gevonden
+                return COMPLETEFRAMEFOUND; // compleet frame gevonden
             }
             else
-                return Incompleteframefound;
+                return INCOMPLETEFRAMEFOUND;
         }
 
 
-         private  void Newframefound()
+        private  void Newframefound()
         {
-            //https://msdn.microsoft.com/en-us/library/zycewsya.aspx
-           // if (Rx_BufferBufferd[] == "$GPRMC") 
+            int Messagetype = Getmessagetype();
+            switch (Messagetype)
             {
-                int a = 10;
+                default:
+                    break;
+                case MESSAGEGPRMC:
+                    Decodemessage_GPRMC();
+                    break;
+                case MESSAGEGPGGA:
+                    Decodemessage_GPGGA();
+                    break;
+                case MESSAGEGPGSA:
+                    Decodemessage_GPGSA();
+                    break;
             }
+        }
+        /// <summary> Decoding message type. </summary>
+        /// <returns> Messagetype </returns>
+        private int Getmessagetype()
+        {
+            int index = 0; // && = Short-circuit AND. if one is false other is not executed.
 
-            //~ uint8_t *cmdPtr = datatosend;
-            //~ *cmdPtr++ = XBEE_STARTDELIMITER;
-            //~ uint8_t *lengthPtr = cmdPtr;
-            //~ cmdPtr += 2;//length
-            //~ *cmdPtr++ = frameIDnr_incr();
-            //~ memcpy(cmdPtr, strAPI.IPv4_sourceIP, sizeof(strAPI.IPv4_sourceIP));
-            //~ cmdPtr += sizeof(strAPI.IPv4_sourceIP);	
-            //~ *lengthPtr = cmdPtr - datatosend;
-            
-         
-
+            if ((Rx_BufferBufferd[index = 1] == (char)'G') && (Rx_BufferBufferd[++index] == (char)'P') && (Rx_BufferBufferd[++index] == (char)'R') &&
+                (Rx_BufferBufferd[++index] == (char)'M') && (Rx_BufferBufferd[++index] == (char)'C'))
+                return MESSAGEGPRMC;
+            else if ((Rx_BufferBufferd[index =1 ] == (char)'G') && (Rx_BufferBufferd[++index] == (char)'P') && (Rx_BufferBufferd[++index] == (char)'G') &&
+                (Rx_BufferBufferd[++index] == (char)'G') && (Rx_BufferBufferd[++index] == (char)'A'))
+            {
+                return MESSAGEGPGGA;
+            }
+            else if ((Rx_BufferBufferd[index =1 ] == (char)'G') && (Rx_BufferBufferd[++index] == (char)'P') && (Rx_BufferBufferd[++index] == (char)'G') &&
+                (Rx_BufferBufferd[++index] == (char)'S') && (Rx_BufferBufferd[++index] == (char)'A'))
+            {
+                return MESSAGEGPGSA;
+            }
+            else
+            {
+                return -1;
+            }
         }
 
+        /// <summary> Decoding ASCII characters. </summary>
+        /// <returns> the value of the ASCII character </returns>
+        private UInt16 ASCII_to_byte(char character)
+        { //https://www.google.nl/search?client=opera&q=convert+c%23+decimal+to+char&sourceid=opera&ie=UTF-8&oe=UTF-8#q=c%23+convert+char+to+ascii+decimal
+            if ((character >= '0') && (character <= '9')) //((character >= 48) && (character <= 57))
+                return (byte)(character - '0');
+            else if ((character >= 'A') && (character <= 'Z')) 
+                return (byte)(character - 'A');
+            else if ((character >= 'a') && (character <= 'z'))
+                return (byte)(character - 'a');
+            else // example: ascii char '0' = 48 dec. return just 0.
+                return 0;
+        }
+
+        ////itoa = for ascii to decimal. ONLY IN C.
+        private void Decodemessage_GPRMC()
+        {
+            // format: $GPRMC,200715.000,A,5012.6991,N,00711.9549,E,0.00,187.10,270115,,,A*65
+            DateTime dateNow = DateTime.Now;
+            if ( Rx_BufferBufferd[18] == 'A' ) // A meens data valid
+            {
+                int index = 6, tmp, hour, minutes, seconds, dotmilseconds;
+
+
+                tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
+                hour = (tmp * 10);
+                hour += ASCII_to_byte(Rx_BufferBufferd[++index]);
+
+
+                tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
+                minutes = (tmp * 10);
+                minutes += ASCII_to_byte(Rx_BufferBufferd[++index]);
+                
+                tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
+                seconds = tmp * 10;
+                seconds += ASCII_to_byte(Rx_BufferBufferd[++index]);
+                
+                index++;
+                // dotmilisec is not implemented in the gps receiver
+                tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
+                dotmilseconds = tmp * 100;
+                tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
+                dotmilseconds += tmp * 10;
+                dotmilseconds += ASCII_to_byte(Rx_BufferBufferd[++index]);
+                DateTime date = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, hour, minutes, seconds);
+                
+            }
+        }
+
+        private void Decodemessage_GPGGA()
+        {
+            ;
+        }
+
+        private void Decodemessage_GPGSA()
+        {
+            ;
+        }
+        
+    
 
 
         /// <summary>
