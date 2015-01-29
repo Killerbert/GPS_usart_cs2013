@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
 using bert;
+using System.Reflection;
+using System.Linq.Expressions;
 
 namespace RS232
 {
@@ -236,8 +238,9 @@ namespace RS232
                 tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
                 dotmilseconds += tmp * 10;
                 dotmilseconds += ASCII_to_byte(Rx_BufferBufferd[++index]);
+
                 DateTime date = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, hour, minutes, seconds);
-                
+                SetControlPropertyThreadSafe(lbl_gpstime, "Text", "GPS time: " + date.TimeOfDay.ToString());
             }
         }
 
@@ -253,19 +256,6 @@ namespace RS232
         
     
 
-
-        /// <summary>
-        /// Original
-        /// </summary>
-        private void port_DataReceived_1(object sender, SerialDataReceivedEventArgs e)
-        {
-            InputData = port.ReadExisting();
-            if (InputData != String.Empty)
-            {
-              //  txtIn.Text = InputData;   // because of different threads this does not work properly !!
-                SetText(InputData);
-            }
-        }
 
 
         #region thread-safe call
@@ -320,8 +310,6 @@ namespace RS232
             else this.text_Decoded.Text += text;
         }
 
-
-
         private static StringBuilder receiveBuffer = new StringBuilder();
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -354,6 +342,26 @@ namespace RS232
                 }
             } while (match.Success);
         }
+       
+        private delegate void SetControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
+        /// <summary> From another thread updating UI. input: textname, what to edit (text) and the new text.. </summary>
+        public static void SetControlPropertyThreadSafe(Control control, string propertyName, object propertyValue)
+        {
+            if (control.InvokeRequired)
+            {
+                control.Invoke(new SetControlPropertyThreadSafeDelegate(SetControlPropertyThreadSafe), new object[] { control, propertyName, propertyValue });
+            }
+            else
+            {
+                control.GetType().InvokeMember(propertyName, BindingFlags.SetProperty, null, control, new object[] { propertyValue });
+            }
+        }
+
+        private void timer_1sec_Tick(object sender, EventArgs e)
+        {
+            SetControlPropertyThreadSafe(lbl_systime, "Text", "System time: " + DateTime.Now.ToString("HH:mm:ss"));
+        }
+
 
     }
 }

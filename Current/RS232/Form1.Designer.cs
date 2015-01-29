@@ -43,6 +43,9 @@ namespace RS232
             this.btnClear = new System.Windows.Forms.Button();
             this.text_Decoded = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.lbl_gpstime = new System.Windows.Forms.Label();
+            this.timer_1sec = new System.Windows.Forms.Timer(this.components);
+            this.lbl_systime = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -167,11 +170,37 @@ namespace RS232
             this.label4.TabIndex = 13;
             this.label4.Text = "Decoded data:";
             // 
+            // lbl_gpstime
+            // 
+            this.lbl_gpstime.AutoSize = true;
+            this.lbl_gpstime.Location = new System.Drawing.Point(37, 314);
+            this.lbl_gpstime.Name = "lbl_gpstime";
+            this.lbl_gpstime.Size = new System.Drawing.Size(99, 13);
+            this.lbl_gpstime.TabIndex = 14;
+            this.lbl_gpstime.Text = "GPS time: 00:00:00";
+            // 
+            // timer_1sec
+            // 
+            this.timer_1sec.Enabled = true;
+            this.timer_1sec.Interval = 1000;
+            this.timer_1sec.Tick += new System.EventHandler(this.timer_1sec_Tick);
+            // 
+            // lbl_systime
+            // 
+            this.lbl_systime.AutoSize = true;
+            this.lbl_systime.Location = new System.Drawing.Point(25, 327);
+            this.lbl_systime.Name = "lbl_systime";
+            this.lbl_systime.Size = new System.Drawing.Size(111, 13);
+            this.lbl_systime.TabIndex = 15;
+            this.lbl_systime.Text = "System time: 00:00:00";
+            // 
             // fclsRS232Tester
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(621, 502);
+            this.Controls.Add(this.lbl_systime);
+            this.Controls.Add(this.lbl_gpstime);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.text_Decoded);
             this.Controls.Add(this.btnClear);
@@ -209,6 +238,9 @@ namespace RS232
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.TextBox text_Decoded;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lbl_gpstime;
+        private System.Windows.Forms.Timer timer_1sec;
+        private System.Windows.Forms.Label lbl_systime;
     }
 }
 
