@@ -10,6 +10,10 @@ using System.Text.RegularExpressions;
 using bert;
 using System.Reflection;
 using System.Linq.Expressions;
+using OGL_Library;
+using Geocoding;
+using Geocoding.Google;
+
 
 namespace RS232
 {
@@ -210,27 +214,26 @@ namespace RS232
 
         ////itoa = for ascii to decimal. ONLY IN C.
         private void Decodemessage_GPRMC()
-        {
-            // format: $GPRMC,200715.000,A,5012.6991,N,00711.9549,E,0.00,187.10,270115,,,A*65
+        { //http://aprs.gids.nl/nmea/
+            // format:  $GPRMC,200715.000,A,5012.6991,N,00711.9549,E,0.00,187.10,270115,,,A*65
             DateTime dateNow = DateTime.Now;
             if ( Rx_BufferBufferd[18] == 'A' ) // A meens data valid
             {
                 int index = 6, tmp, hour, minutes, seconds, dotmilseconds;
 
-
+                string[] str_gga = new string(Rx_BufferBufferd).Split(',');
+                GPSReceive.MSG_GGA gga = new GPSReceive.MSG_GGA();
+                gga.Receive_Time = str_gga[1];
+                
                 tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
                 hour = (tmp * 10);
                 hour += ASCII_to_byte(Rx_BufferBufferd[++index]);
-
-
                 tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
                 minutes = (tmp * 10);
                 minutes += ASCII_to_byte(Rx_BufferBufferd[++index]);
-                
                 tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
                 seconds = tmp * 10;
                 seconds += ASCII_to_byte(Rx_BufferBufferd[++index]);
-                
                 index++;
                 // dotmilisec is not implemented in the gps receiver
                 tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
@@ -238,10 +241,53 @@ namespace RS232
                 tmp = ASCII_to_byte(Rx_BufferBufferd[++index]);
                 dotmilseconds += tmp * 10;
                 dotmilseconds += ASCII_to_byte(Rx_BufferBufferd[++index]);
-
                 DateTime date = new DateTime(dateNow.Year, dateNow.Month, dateNow.Day, hour, minutes, seconds);
                 SetControlPropertyThreadSafe(lbl_gpstime, "Text", "GPS time: " + date.TimeOfDay.ToString());
+
+                //gga.Position_Fix = int.Parse(str_gga[2]);
+                gga.Latitude = str_gga[3];
+                gga.NS_Indicator = Convert.ToChar(str_gga[4].Substring(0, 1));
+                gga.Longitude = str_gga[5];
+                gga.EW_Indicator = Convert.ToChar(str_gga[6].Substring(0, 1));
+                
+               
+               // gga.Satellites_Used = str_gga[7];
+               // gga.HDOP = str_gga[8];
+               // gga.Altitude = str_gga[9];
+               // gga.Altitude_Units = Convert.ToChar(str_gga[10].Substring(0, 1));
+               // gga.DGPS_Station_ID = str_gga[11];
+
+                IGeocoder geocoder = new GoogleGeocoder();
+                IEnumerable<Address> addresses = geocoder.Geocode("1600 pennsylvania ave washington dc");
+                //Address[] addressess = geocoder.Geocode("123 Main St");
+              //  Console.WriteLine("Formatted: " + addresses.First().FormattedAddress); //Formatted: 1600 Pennslyvania Avenue Northwest, Presiden'ts Park, Washington, DC 20500, USA
+               // Console.WriteLine("Coordinates: " + addresses.First().Coordinates.Latitude + ", " + addresses.First().Coordinates.Longitude); //Coordinates: 38.8978378, -77.0365123
+               
+                //geocoder.ReverseGeocode(gga.Latitude,gga.Longitude);
+
+                Updatewebbrouwser();
             }
+        }
+        private void Updatewebbrouwser()
+        {
+            StringBuilder queryaddress = new StringBuilder();
+            queryaddress.Append("http://maps.google.com/maps?q=");
+            string latitude = "52.211 N";
+            string longitude = "7.014 E";
+
+            try
+            {
+                queryaddress.Append(latitude + "%2C");
+                queryaddress.Append(longitude);
+                webBrowser.Navigate(queryaddress.ToString());
+            }
+            
+            catch (Exception ex)
+            {
+                MessageBox.Show("error" + ex);
+            }
+
+
         }
 
         private void Decodemessage_GPGGA()
@@ -253,7 +299,11 @@ namespace RS232
         {
             ;
         }
-        
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Dispose();
+        }
     
 
 

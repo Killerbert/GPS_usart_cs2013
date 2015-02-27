@@ -46,6 +46,7 @@ namespace RS232
             this.lbl_gpstime = new System.Windows.Forms.Label();
             this.timer_1sec = new System.Windows.Forms.Timer(this.components);
             this.lbl_systime = new System.Windows.Forms.Label();
+            this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,19 +55,19 @@ namespace RS232
             this.txtIn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtIn.Location = new System.Drawing.Point(95, 12);
+            this.txtIn.Location = new System.Drawing.Point(98, 12);
             this.txtIn.Multiline = true;
             this.txtIn.Name = "txtIn";
-            this.txtIn.Size = new System.Drawing.Size(517, 100);
+            this.txtIn.Size = new System.Drawing.Size(552, 78);
             this.txtIn.TabIndex = 0;
             // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.stsStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 480);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 696);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(621, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(656, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -79,7 +80,7 @@ namespace RS232
             // btnSend
             // 
             this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSend.Location = new System.Drawing.Point(567, 447);
+            this.btnSend.Location = new System.Drawing.Point(602, 663);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(45, 20);
             this.btnSend.TabIndex = 2;
@@ -91,9 +92,9 @@ namespace RS232
             // 
             this.txtOut.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOut.Location = new System.Drawing.Point(95, 447);
+            this.txtOut.Location = new System.Drawing.Point(95, 663);
             this.txtOut.Name = "txtOut";
-            this.txtOut.Size = new System.Drawing.Size(466, 20);
+            this.txtOut.Size = new System.Drawing.Size(501, 20);
             this.txtOut.TabIndex = 3;
             // 
             // label1
@@ -109,7 +110,7 @@ namespace RS232
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 447);
+            this.label2.Location = new System.Drawing.Point(9, 663);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(59, 13);
             this.label2.TabIndex = 5;
@@ -142,7 +143,7 @@ namespace RS232
             // btnClear
             // 
             this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClear.Location = new System.Drawing.Point(567, 92);
+            this.btnClear.Location = new System.Drawing.Point(605, 70);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(45, 20);
             this.btnClear.TabIndex = 11;
@@ -155,16 +156,16 @@ namespace RS232
             this.text_Decoded.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.text_Decoded.Location = new System.Drawing.Point(95, 133);
+            this.text_Decoded.Location = new System.Drawing.Point(98, 115);
             this.text_Decoded.Multiline = true;
             this.text_Decoded.Name = "text_Decoded";
-            this.text_Decoded.Size = new System.Drawing.Size(517, 152);
+            this.text_Decoded.Size = new System.Drawing.Size(552, 77);
             this.text_Decoded.TabIndex = 12;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(9, 136);
+            this.label4.Location = new System.Drawing.Point(12, 118);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(78, 13);
             this.label4.TabIndex = 13;
@@ -173,7 +174,7 @@ namespace RS232
             // lbl_gpstime
             // 
             this.lbl_gpstime.AutoSize = true;
-            this.lbl_gpstime.Location = new System.Drawing.Point(37, 314);
+            this.lbl_gpstime.Location = new System.Drawing.Point(23, 221);
             this.lbl_gpstime.Name = "lbl_gpstime";
             this.lbl_gpstime.Size = new System.Drawing.Size(99, 13);
             this.lbl_gpstime.TabIndex = 14;
@@ -188,17 +189,26 @@ namespace RS232
             // lbl_systime
             // 
             this.lbl_systime.AutoSize = true;
-            this.lbl_systime.Location = new System.Drawing.Point(25, 327);
+            this.lbl_systime.Location = new System.Drawing.Point(11, 234);
             this.lbl_systime.Name = "lbl_systime";
             this.lbl_systime.Size = new System.Drawing.Size(111, 13);
             this.lbl_systime.TabIndex = 15;
             this.lbl_systime.Text = "System time: 00:00:00";
             // 
+            // webBrowser
+            // 
+            this.webBrowser.Location = new System.Drawing.Point(439, 290);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.Size = new System.Drawing.Size(188, 122);
+            this.webBrowser.TabIndex = 16;
+            // 
             // fclsRS232Tester
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(621, 502);
+            this.ClientSize = new System.Drawing.Size(656, 718);
+            this.Controls.Add(this.webBrowser);
             this.Controls.Add(this.lbl_systime);
             this.Controls.Add(this.lbl_gpstime);
             this.Controls.Add(this.label4);
@@ -241,6 +251,7 @@ namespace RS232
         private System.Windows.Forms.Label lbl_gpstime;
         private System.Windows.Forms.Timer timer_1sec;
         private System.Windows.Forms.Label lbl_systime;
+        private System.Windows.Forms.WebBrowser webBrowser;
     }
 }
 
